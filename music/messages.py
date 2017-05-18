@@ -8,6 +8,14 @@ USER_DOES_NOT_EXISTS = {
     MESSAGE: "User does not exist."
 }
 
+SONG_DOES_NOT_EXISTS = {
+    MESSAGE: "Track does not exist."
+}
+
+GENRE_DOES_NOT_EXISTS = {
+    MESSAGE: "Genre does not exist."
+}
+
 INVALID_EMAIL_ADDRESS = {
     MESSAGE: "Enter a valid email address."
 }

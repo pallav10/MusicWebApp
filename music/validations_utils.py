@@ -4,7 +4,7 @@ import re
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from rest_framework import status
-from models import User
+from models import User, Song, Genre
 
 
 def email_validation(data):
@@ -50,3 +50,19 @@ def user_validation_with_email(email):
         return user
     except User.DoesNotExist:
         raise exceptions_utils.ValidationException(messages.USER_WITH_EMAIL_DOES_NOT_EXISTS, status.HTTP_404_NOT_FOUND)
+
+
+def track_validation(key):
+    try:
+        track = Song.objects.get(pk=key)
+        return track
+    except Song.DoesNotExist:
+        raise exceptions_utils.ValidationException(messages.SONG_DOES_NOT_EXISTS, status.HTTP_404_NOT_FOUND)
+
+
+def genre_validation(key):
+    try:
+        genre = Genre.objects.get(pk=key)
+        return genre
+    except Genre.DoesNotExist:
+        raise exceptions_utils.ValidationException(messages.GENRE_DOES_NOT_EXISTS, status.HTTP_404_NOT_FOUND)

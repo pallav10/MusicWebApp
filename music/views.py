@@ -344,11 +344,27 @@ def get_all_genres(request, pk):
         return Response(genre_serializer.data, status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'PUT'])
 @permission_classes((UserPermissions, IsAuthenticated))
 @cache_page(60 * 15)
-def get_genre(request, pk, key):
-    pass
+def genre_detail(request, pk, key):
+    data = request.data
+    try:
+        user = validations_utils.user_validation(pk)  # Validates if user exists or not.
+        validations_utils.user_token_validation(request.auth.user_id, pk)  # Validates user's Token authentication.
+        genre_info = validations_utils.genre_validation(key)
+    except ValidationException as e:  # Generic exception
+        return Response(e.errors, status=e.status)
+
+    if request.method == 'GET':
+        genre_serializer = GenreSerializer(genre_info)
+        return Response(genre_serializer.data, status=status.HTTP_200_OK)
+    elif request.method == 'PUT':
+        try:
+            updated_genre = utils.update_genre(data, genre_info)  # Updates genre details.
+            return Response(updated_genre, status=status.HTTP_200_OK)
+        except ValidationException as e:  # Generic exception
+            return Response(e.errors, status=e.status)
 
 
 @api_view(['GET'])
@@ -362,12 +378,28 @@ def get_all_tracks(request, pk):
         return Response(e.errors, status=e.status)
     if request.method == 'GET':
         track = Song.objects.filter(user_id=user.id)  # Get all tracks for particular user
-        track_serializer = GenreSerializer(track, many=True)
+        track_serializer = SongSerializer(track, many=True)
         return Response(track_serializer.data, status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'PUT'])
 @permission_classes((UserPermissions, IsAuthenticated))
 @cache_page(60 * 15)
-def get_track(request, pk, key):
-    pass
+def track_detail(request, pk, key):
+    data = request.data
+    try:
+        user = validations_utils.user_validation(pk)  # Validates if user exists or not.
+        validations_utils.user_token_validation(request.auth.user_id, pk)  # Validates user's Token authentication.
+        track = validations_utils.track_validation(key)
+    except ValidationException as e:  # Generic exception
+        return Response(e.errors, status=e.status)
+
+    if request.method == 'GET':
+        track_serializer = SongSerializer(track)
+        return Response(track_serializer.data, status=status.HTTP_200_OK)
+    elif request.method == 'PUT':
+        try:
+            updated_track = utils.update_track(data, track)  # Updates track details.
+            return Response(updated_track, status=status.HTTP_200_OK)
+        except ValidationException as e:  # Generic exception
+            return Response(e.errors, status=e.status)
