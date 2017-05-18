@@ -376,10 +376,26 @@ def get_all_tracks(request, pk):
         validations_utils.user_token_validation(request.auth.user_id, pk)  # Validates user's Token authentication.
     except ValidationException as e:  # Generic exception
         return Response(e.errors, status=e.status)
+    query_params = request.query_params.dict()  # Gets parameters.
     if request.method == 'GET':
-        track = Song.objects.filter(user_id=user.id)  # Get all tracks for particular user
-        track_serializer = SongSerializer(track, many=True)
-        return Response(track_serializer.data, status=status.HTTP_200_OK)
+        if 'song_title' in query_params:
+            filter_by_title = str(query_params['song_title'][:-1] if '/' in query_params['song_title']
+                                  else query_params['song_title'])
+            track = Song.objects.filter(user_id=user.id,
+                                        song_title=filter_by_title)  # Get all tracks for particular title
+            track_serializer = SongSerializer(track, many=True)
+            return Response(track_serializer.data, status=status.HTTP_200_OK)
+        elif 'genre' in query_params:
+            filter_by_genre = str(query_params['genre'][:-1] if '/' in query_params['genre']
+                                  else query_params['genre'])
+            track = Song.objects.filter(user_id=user.id,
+                                        genre=filter_by_genre)  # Get all tracks for particular genre
+            track_serializer = SongSerializer(track, many=True)
+            return Response(track_serializer.data, status=status.HTTP_200_OK)
+        else:
+            track = Song.objects.filter(user_id=user.id)  # Get all tracks for particular user
+            track_serializer = SongSerializer(track, many=True)
+            return Response(track_serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['GET', 'PUT'])
@@ -403,3 +419,4 @@ def track_detail(request, pk, key):
             return Response(updated_track, status=status.HTTP_200_OK)
         except ValidationException as e:  # Generic exception
             return Response(e.errors, status=e.status)
+

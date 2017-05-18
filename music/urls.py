@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^users/(?P<pk>[0-9]+)/song/$', views.song),
     url(r'^users/(?P<pk>[0-9]+)/tracks/$', views.get_all_tracks),
     url(r'^users/(?P<pk>[0-9]+)/tracks/(?P<key>[0-9]+)/$', views.track_detail),
+
 ]
 
 
