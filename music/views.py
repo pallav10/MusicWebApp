@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate
+from django.views.decorators.cache import cache_page
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -6,9 +7,10 @@ from rest_framework.response import Response
 import messages
 import utils
 import validations_utils
+from models import Genre, Song
 from exceptions_utils import ValidationException
 from permission import UserPermissions
-from serializers import UserProfileSerializer
+from serializers import UserProfileSerializer, GenreSerializer, SongSerializer
 
 
 # Create your views here.
@@ -225,6 +227,7 @@ def user_login(request):
 
 @api_view(['POST'])
 @permission_classes((UserPermissions, IsAuthenticated))
+@cache_page(60 * 15)
 def genre(request, pk):
     """
     **creates a new genre**
@@ -273,6 +276,7 @@ dd
 
 @api_view(['POST'])
 @permission_classes((UserPermissions, IsAuthenticated))
+@cache_page(60 * 15)
 def song(request, pk):
     """
     **creates a new song**
@@ -323,3 +327,47 @@ dd
             return Response(song_data, status=status.HTTP_201_CREATED)
         except ValidationException as e:  # Generic exception
             return Response(e.errors, status=e.status)
+
+
+@api_view(['GET'])
+@permission_classes((UserPermissions, IsAuthenticated))
+@cache_page(60 * 15)
+def get_all_genres(request, pk):
+    try:
+        user = validations_utils.user_validation(pk)  # Validates if user exists or not.
+        validations_utils.user_token_validation(request.auth.user_id, pk)  # Validates user's Token authentication.
+    except ValidationException as e:  # Generic exception
+        return Response(e.errors, status=e.status)
+    if request.method == 'GET':
+        genres = Genre.objects.filter(user_id=user.id)
+        genre_serializer = GenreSerializer(genres, many=True)
+        return Response(genre_serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes((UserPermissions, IsAuthenticated))
+@cache_page(60 * 15)
+def get_genre(request, pk, key):
+    pass
+
+
+@api_view(['GET'])
+@permission_classes((UserPermissions, IsAuthenticated))
+@cache_page(60 * 15)
+def get_all_tracks(request, pk):
+    try:
+        user = validations_utils.user_validation(pk)  # Validates if user exists or not.
+        validations_utils.user_token_validation(request.auth.user_id, pk)  # Validates user's Token authentication.
+    except ValidationException as e:  # Generic exception
+        return Response(e.errors, status=e.status)
+    if request.method == 'GET':
+        track = Song.objects.filter(user_id=user.id)  # Get all tracks for particular user
+        track_serializer = GenreSerializer(track, many=True)
+        return Response(track_serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes((UserPermissions, IsAuthenticated))
+@cache_page(60 * 15)
+def get_track(request, pk, key):
+    pass
