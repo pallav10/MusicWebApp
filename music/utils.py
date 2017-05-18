@@ -4,7 +4,7 @@ from rest_framework.authtoken.models import Token
 
 import exceptions_utils
 import messages
-from serializers import UserSerializer, UserProfileSerializer
+from serializers import UserSerializer, UserProfileSerializer, GenreSerializer, SongSerializer
 
 
 def generate_token(user):
@@ -66,3 +66,24 @@ def authenticate_user(user, data):
     else:
         raise exceptions_utils.ValidationException(messages.INVALID_EMAIL_OR_PASSWORD, status.HTTP_401_UNAUTHORIZED)
 
+
+def create_genre(data):
+    genre_serializer = GenreSerializer(data=data)
+    if genre_serializer.is_valid():
+        genre = genre_serializer.save()
+        keys = ['id', 'genre', 'is_favorite']  # data that we want to return as JSON response
+        response = {k: v for k, v in genre_serializer.data.iteritems() if k in keys}
+        return response
+    else:
+        raise exceptions_utils.ValidationException(genre_serializer.errors, status.HTTP_400_BAD_REQUEST)
+
+
+def create_song(data):
+    song_serializer = SongSerializer(data=data)
+    if song_serializer.is_valid():
+        song = song_serializer.save()
+        keys = ['id', 'song_title', 'genre', 'audio_file', 'ratings']  # data that we want to return as JSON response
+        response = {k: v for k, v in song_serializer.data.iteritems() if k in keys}
+        return response
+    else:
+        raise exceptions_utils.ValidationException(song_serializer.errors, status.HTTP_400_BAD_REQUEST)

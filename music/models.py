@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
 from rest_framework.authtoken.models import Token
 
 
@@ -58,25 +59,29 @@ class User(AbstractBaseUser):
 
 
 class Genre(models.Model):
-
     class Meta:
         db_table = 'genre'
+
     user = models.ForeignKey(User, default=1)
     genre = models.CharField(max_length=100)
     is_favorite = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return self.genre
 
 
 class Song(models.Model):
-
     class Meta:
         db_table = 'songs'
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+
+    user = models.ForeignKey(User, default=1)
     song_title = models.CharField(max_length=250)
+    genre = models.CharField(max_length=100)
     audio_file = models.FileField(default='')
-    is_favorite = models.BooleanField(default=False)
+    ratings = models.IntegerField(default=0,
+                                  validators=[MaxValueValidator(5), MinValueValidator(0)])
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return self.song_title

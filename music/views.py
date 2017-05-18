@@ -222,3 +222,104 @@ def user_login(request):
         return Response(e.errors, status=e.status)
     return Response(login_user, status=status.HTTP_200_OK)
 
+
+@api_view(['POST'])
+@permission_classes((UserPermissions, IsAuthenticated))
+def genre(request, pk):
+    """
+    **creates a new genre**
+
+    * Accepts only POST requests
+dd
+    > POST
+
+    * Requires following fields of users in JSON format:
+
+        - Sign Up with Email
+
+            1. `genre` - genre type
+
+
+    * Possible HTTP status codes and JSON response:
+
+        * `HTTP_201_CREATED` - When new genre creation is done successfully:
+
+                {
+                      "id": integer
+                      "genre": string
+                }
+
+        * `HTTP_500_INTERNAL_SERVER_ERROR` - Internal server error
+
+    * Status code can be used from HTTP header. A separate status field in json
+    data is not provided.
+    :param pk:
+    :param request:
+
+    """
+    if request.method == 'POST':
+        try:
+            user = validations_utils.user_validation(pk)  # Validates if user exists or not.
+            validations_utils.user_token_validation(request.auth.user_id, pk)  # Validates user's Token authentication.
+        except ValidationException as e:  # Generic exception
+            return Response(e.errors, status=e.status)
+        try:
+            data = request.data
+            genre_data = utils.create_genre(data)  # Creates genre with request data.
+            return Response(genre_data, status=status.HTTP_201_CREATED)
+        except ValidationException as e:  # Generic exception
+            return Response(e.errors, status=e.status)
+
+
+@api_view(['POST'])
+@permission_classes((UserPermissions, IsAuthenticated))
+def song(request, pk):
+    """
+    **creates a new song**
+
+    * Accepts only POST requests
+dd
+    > POST
+
+    * Requires following fields of users in JSON format:
+
+        - Sign Up with Email
+
+            1. `song_title` - string
+            2. `genre` - genre type(string)
+            3. `audio_file` - file
+            4. `ratings` - integer between 0 to 5
+
+
+    * Possible HTTP status codes and JSON response:
+
+        * `HTTP_201_CREATED` - When new genre creation is done successfully:
+
+                {
+                      "id":integer,
+                      "song_title": string,
+                      "genre": string,
+                      "audio_file": file,
+                      "ratings": integer,
+                }
+
+        * `HTTP_500_INTERNAL_SERVER_ERROR` - Internal server error
+
+    * Status code can be used from HTTP header. A separate status field in json
+    data is not provided.
+    :param pk:
+    :param request:
+
+    """
+    if request.method == 'POST':
+        try:
+            user = validations_utils.user_validation(pk)  # Validates if user exists or not.
+            validations_utils.user_token_validation(request.auth.user_id, pk)  # Validates user's Token authentication.
+        except ValidationException as e:  # Generic exception
+            return Response(e.errors, status=e.status)
+        try:
+            data = request.data
+            song_data = utils.create_song(data)  # Creates song with request data.
+            return Response(song_data, status=status.HTTP_201_CREATED)
+        except ValidationException as e:  # Generic exception
+            return Response(e.errors, status=e.status)

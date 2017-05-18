@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from models import User
+from models import User, Song, Genre
 
 
 # used for registration, it holds the value of user table with all fields.
@@ -22,15 +22,17 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'state', 'country')
 
 
+# it holds the value of song table with all fields.
 class SongSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = User
-        fields = ('id', 'genre', 'song_title', 'audio_file', 'is_favorite')
+        model = Song
+        fields = ('id', 'song_title', 'genre', 'audio_file', 'ratings', 'is_deleted')
 
 
+# it holds the value of genre table with all fields.
 class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = User
-        fields = ('id', 'genre', 'is_favorite')
+        model = Genre
+        fields = ('id', 'genre', 'is_favorite', 'is_deleted')
